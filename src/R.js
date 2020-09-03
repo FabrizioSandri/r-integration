@@ -97,7 +97,6 @@ executeRCommand = (command) => {
             output = commandResult.stdout.replace("\n", "");
             output = output.substring(4); // removes the line number
         }else{
-            // there was an error
             console.error(`[R: compile error] ${commandResult.stderr.stderr}`);
         }
 
@@ -107,3 +106,35 @@ executeRCommand = (command) => {
 
     return output;
 }
+
+/**
+ * execute in R all the commands in the file specified by the parameter fileLocation
+ * NOTE: the function reads only variables printed by the cat() or print() function.
+ * It is recommended to use the cat() function insted of the print() to avoid line numbers
+ * 
+ * @param {string} fileLocation: where the file to execute is stored
+ * @returns {string} :  the script execution output, null if there was an error
+ */
+executeRScript = (fileLocation) => {
+   
+    let RscriptBinaryPath = isRscriptInstallaed();
+    let output;
+
+    if (RscriptBinaryPath){
+        var commandToExecute = `${RscriptBinaryPath} "${fileLocation}"`;
+        var commandResult = executeShellCommand(commandToExecute);
+
+        if (commandResult.stdout){
+            output = commandResult.stdout;
+        }else{
+            console.error(`[R: compile error] ${commandResult.stderr.stderr}`);
+        }
+
+    }else{
+        console.error("R not found, maybe not installed.\nSee www.r-project.org");
+    }
+
+    return output;
+
+}
+
