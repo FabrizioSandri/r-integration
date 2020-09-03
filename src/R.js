@@ -94,7 +94,8 @@ executeRCommand = (command) => {
         var commandResult = executeShellCommand(commandToExecute);
 
         if (commandResult.stdout){
-            output = commandResult.stdout;
+            output = commandResult.stdout.replace("\n", "");
+            output = output.substring(4); // removes the line number
         }else{
             // there was an error
             console.error(`[R: compile error] ${commandResult.stderr.stderr}`);
