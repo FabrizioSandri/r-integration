@@ -1,4 +1,5 @@
 const fs = require("fs");
+var child_process = require('child_process');
 
 
 /**
@@ -67,7 +68,7 @@ isRscriptInstallaed = () => {
             // the command "which" is used to find the Rscript installation dir
             let result = executeShellCommand("which Rscript").stdout;
             if (result){
-                // Rscript is installed, let's find the path
+                // Rscript is installed
                 installationDir = result.replace("\n", "");
             }
         case "mac":
