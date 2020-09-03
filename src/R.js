@@ -89,7 +89,20 @@ executeRCommand = (command) => {
     let RscriptBinaryPath = isRscriptInstallaed();
     let output;
 
-    
+    if (RscriptBinaryPath){
+        var commandToExecute = `${RscriptBinaryPath} -e "${command}"`;
+        var commandResult = executeShellCommand(commandToExecute);
+
+        if (commandResult.stdout){
+            output = commandResult.stdout;
+        }else{
+            // there was an error
+            console.error(`[R: compile error] ${commandResult.stderr.stderr}`);
+        }
+
+    }else{
+        console.error("R not found, maybe not installed.\nSee www.r-project.org");
+    }
 
     return output;
 }
