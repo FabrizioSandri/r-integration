@@ -77,3 +77,19 @@ isRscriptInstallaed = () => {
 
     return installationDir;
 }
+
+/**
+ * Execute in R a specific one line command
+ * 
+ * @param {string} command : the single line R command
+ * @returns {string} : the command execution output, null if there was an error
+ */
+executeRCommand = (command) => {
+
+    let RscriptBinaryPath = isRscriptInstallaed();
+    let output;
+
+    
+
+    return output;
+}
