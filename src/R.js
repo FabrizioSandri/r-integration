@@ -138,3 +138,7 @@ executeRScript = (fileLocation) => {
 
 }
 
+module.exports = {
+    executeRCommand,
+    executeRScript
+}
