@@ -61,7 +61,7 @@ isRscriptInstallaed = () => {
                 installationDir = "C:\\Program Files\\R";
 
                 fs.readdirSync(installationDir).forEach(obj => {
-                    installationDir += `\\${obj}\\Rscript.exe`;
+                    installationDir += `\\${obj}\\bin\\Rscript.exe`;
                 });
             }
         case "lin":
