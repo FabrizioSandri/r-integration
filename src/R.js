@@ -5,7 +5,7 @@ var child_process = require('child_process');
 /**
  * get the current Operating System name
  * 
- * @returns {string} : the operating system short name 
+ * @returns {string} the operating system short name 
  *  - "win" -> for Windows based Systems
  *  - "lin" -> for GNU/Linux based Systems
  *  - "mac" -> for MacOS based Systems
@@ -29,8 +29,8 @@ getCurrentOs = () => {
 /**
  * execute a command in the OS shell (used to execute R command)
  * 
- * @param {string} command : the command to execute
- * @returns {string, string} : the command execution result
+ * @param {string} command the command to execute
+ * @returns {{string, string}} the command execution result
  */
 executeShellCommand = (command) => {
     let stdout;
@@ -49,7 +49,7 @@ executeShellCommand = (command) => {
  * checks if Rscript(R) is installed od the system and returns
  * the path where the binary is installed
  * 
- * @returns {string} : the path where the Rscript binary is installed, null otherwise
+ * @returns {string} the path where the Rscript binary is installed, null otherwise
  */
 isRscriptInstallaed = () => {
     var installationDir = null;
@@ -81,8 +81,8 @@ isRscriptInstallaed = () => {
 /**
  * Execute in R a specific one line command
  * 
- * @param {string} command : the single line R command
- * @returns {string} : the command execution output, null if there was an error
+ * @param {string} command the single line R command
+ * @returns {string} the command execution output, null if there was an error
  */
 executeRCommand = (command) => {
 
@@ -112,8 +112,8 @@ executeRCommand = (command) => {
  * NOTE: the function reads only variables printed by the cat() or print() function.
  * It is recommended to use the cat() function insted of the print() to avoid line numbers
  * 
- * @param {string} fileLocation: where the file to execute is stored
- * @returns {string} :  the script execution output, null if there was an error
+ * @param {string} fileLocation where the file to execute is stored
+ * @returns {string} the script execution output, null if there was an error
  */
 executeRScript = (fileLocation) => {
    
