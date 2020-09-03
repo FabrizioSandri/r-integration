@@ -7,6 +7,7 @@ const fs = require("fs");
  * @returns {string} : the operating system short name 
  *  - "win" -> for Windows based Systems
  *  - "lin" -> for GNU/Linux based Systems
+ *  - "mac" -> for MacOS based Systems
  */
 getCurrentOs = () => {
     var processPlatform = process.platform;
@@ -16,7 +17,9 @@ getCurrentOs = () => {
         currentOs = "win";
     }else if(processPlatform === "linux" || processPlatform === "openbsd" || processPlatform === "freebsd"){
         currentOs = "lin";
-    } 
+    }else {
+        currentOs = "mac"
+    }   
 
     return currentOs;
 }
