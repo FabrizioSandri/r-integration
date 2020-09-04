@@ -90,7 +90,7 @@ executeRCommand = (command) => {
     let output;
 
     if (RscriptBinaryPath){
-        var commandToExecute = `${RscriptBinaryPath} -e "${command}"`;
+        var commandToExecute = `"${RscriptBinaryPath}" -e "${command}"`;
         var commandResult = executeShellCommand(commandToExecute);
 
         if (commandResult.stdout){
@@ -121,7 +121,7 @@ executeRScript = (fileLocation) => {
     let output;
 
     if (RscriptBinaryPath){
-        var commandToExecute = `${RscriptBinaryPath} "${fileLocation}"`;
+        var commandToExecute = `"${RscriptBinaryPath}" "${fileLocation}"`;
         var commandResult = executeShellCommand(commandToExecute);
 
         if (commandResult.stdout){
