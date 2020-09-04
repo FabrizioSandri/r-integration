@@ -155,9 +155,19 @@ executeRScript = (fileLocation) => {
  * @returns {String[]} an array containing all the results 
  */
 filterMultiline = (commandResult) => {
-    // remove last \n to avoid empty results
-    commandResult = commandResult.replace(/\n$/g, "");
-    let data = commandResult.split("\n");
+    let data;
+
+    // remove last newline to avoid empty results
+    // NOTE: windows newline is composed by \r\n, GNU/Linux newline is \n
+    var currentOS = getCurrentOs();
+
+    if (currentOS == "win"){
+        commandResult = commandResult.replace(/\r\n$/g, "");
+        data = commandResult.split("\r\n");
+    }else{
+        commandResult = commandResult.replace(/\n$/g, "");
+        data = commandResult.split("\n");
+    }
 
     data.forEach((element, index) => {
         data[index] = element.replace(/\[.\] /g, "");
@@ -170,6 +180,3 @@ module.exports = {
     executeRCommand,
     executeRScript
 }
-
-
-console.log(executeRScript("./scripts/test.R"));
