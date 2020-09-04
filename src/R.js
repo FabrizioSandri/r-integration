@@ -82,7 +82,7 @@ isRscriptInstallaed = () => {
  * Execute in R a specific one line command
  * 
  * @param {string} command the single line R command
- * @returns {string} the command execution output, null if there was an error
+ * @returns {String[]} an array containing all the results from the command execution output, null if there was an error
  */
 executeRCommand = (command) => {
 
@@ -94,8 +94,8 @@ executeRCommand = (command) => {
         var commandResult = executeShellCommand(commandToExecute);
 
         if (commandResult.stdout){
-            output = commandResult.stdout.replace("\n", "");
-            output = output.substring(4); // removes the line number
+            output = commandResult.stdout;
+            output = filterMultiline(output);
         }else{
             console.error(`[R: compile error] ${commandResult.stderr.stderr}`);
         }
@@ -109,16 +109,24 @@ executeRCommand = (command) => {
 
 /**
  * execute in R all the commands in the file specified by the parameter fileLocation
- * NOTE: the function reads only variables printed by the cat() or print() function.
- * It is recommended to use the cat() function insted of the print() to avoid line numbers
+ * NOTE: the function reads only variables printed to stdout by the cat() or print() function.
+ * It is recommended to use the print() function insted of the cat() to avoid line break problem.
+ * If you use the cat() function remember to add the newline character "\n" at the end of each cat:
+ * for example cat(" ... \n")
  * 
  * @param {string} fileLocation where the file to execute is stored
- * @returns {string} the script execution output, null if there was an error
+ * @returns {String[]} an array containing all the results from the command execution output, null if there was an error
  */
 executeRScript = (fileLocation) => {
    
     let RscriptBinaryPath = isRscriptInstallaed();
     let output;
+
+    if (! fs.existsSync(fileLocation)) {
+        //file doesn't exist
+        console.error(`ERROR: the file "${fileLocation} doesn't exist"`);
+        return output;     
+    }
 
     if (RscriptBinaryPath){
         var commandToExecute = `"${RscriptBinaryPath}" "${fileLocation}"`;
@@ -126,6 +134,7 @@ executeRScript = (fileLocation) => {
 
         if (commandResult.stdout){
             output = commandResult.stdout;
+            output = filterMultiline(output);
         }else{
             console.error(`[R: compile error] ${commandResult.stderr.stderr}`);
         }
@@ -136,6 +145,35 @@ executeRScript = (fileLocation) => {
 
     return output;
 
+}
+
+
+/**
+ * filters the multiline output from the executeRcommand and executeRScript functions
+ * using regular expressions
+ * @param {string} commandResult the multiline result of RScript execution
+ * @returns {String[]} an array containing all the results 
+ */
+filterMultiline = (commandResult) => {
+    let data;
+
+    // remove last newline to avoid empty results
+    // NOTE: windows newline is composed by \r\n, GNU/Linux newline is \n
+    var currentOS = getCurrentOs();
+
+    if (currentOS == "win"){
+        commandResult = commandResult.replace(/\r\n$/g, "");
+        data = commandResult.split("\r\n");
+    }else{
+        commandResult = commandResult.replace(/\n$/g, "");
+        data = commandResult.split("\n");
+    }
+
+    data.forEach((element, index) => {
+        data[index] = element.replace(/\[.\] /g, "");
+    });
+
+    return data;
 }
 
 module.exports = {
