@@ -85,8 +85,8 @@ cat(result, sep="\n")
 -   [Node.js](https://nodejs.org)
 -   [npm](https://www.npmjs.com/)
 
-#### Windows
-For Windows users refer to the links above.
+#### Windows / Mac OS
+For Windows and Mac OS users refer to the links above.
 
 #### Ubuntu - Debian
 ```bash

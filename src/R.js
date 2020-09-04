@@ -64,6 +64,8 @@ isRscriptInstallaed = () => {
                     installationDir += `\\${obj}\\bin\\Rscript.exe`;
                 });
             }
+            break;
+        case "mac":
         case "lin":
             // the command "which" is used to find the Rscript installation dir
             let result = executeShellCommand("which Rscript").stdout;
@@ -71,8 +73,9 @@ isRscriptInstallaed = () => {
                 // Rscript is installed
                 installationDir = result.replace("\n", "");
             }
-        case "mac":
-            // TODO: not yet implemented
+            break;
+        default:
+            break;
     }
 
     return installationDir;
@@ -158,7 +161,7 @@ filterMultiline = (commandResult) => {
     let data;
 
     // remove last newline to avoid empty results
-    // NOTE: windows newline is composed by \r\n, GNU/Linux newline is \n
+    // NOTE: windows newline is composed by \r\n, GNU/Linux and Mac OS newline is \n
     var currentOS = getCurrentOs();
 
     if (currentOS == "win"){
