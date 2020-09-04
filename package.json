@@ -1,0 +1,24 @@
+{
+  "name": "r-integration",
+  "version": "1.0.0",
+  "description": "Simple portable library used to interact with pre-installed R compiler by running commands or scripts(files)",
+  "main": "src/R.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FabrizioSandri/r-integration.git"
+  },
+  "keywords": [
+    "r",
+    "r-integration",
+    "r-command"
+  ],
+  "author": "Sandri Fabrizio",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/FabrizioSandri/r-integration/issues"
+  },
+  "homepage": "https://github.com/FabrizioSandri/r-integration#readme"
+}
