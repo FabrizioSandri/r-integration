@@ -150,10 +150,36 @@ executeRScript = (fileLocation) => {
 
 }
 
+/**
+ * calls a R with parameters and returns the result
+ * 
+ * @param {string} fileLocation where the file containing the function is stored
+ * @param {string} methodName the name of the method to execute
+ * @param {String []} params a list of parameters to pass to the function
+ * @returns {string} the execution output of the function
+ */
+callMethod = (fileLocation, methodName, params) => {
+
+    let output;
+
+    var methodSyntax = `${methodName}(`;
+    params.forEach((element) => {
+        methodSyntax += `${element},`;
+    });
+    var methodSyntax = methodSyntax.slice(0,-1);
+    methodSyntax += ")";
+
+    output = executeRCommand(`source('${fileLocation}') ; print(${methodSyntax})`);
+    
+    return output;
+}
+
+
 
 /**
  * filters the multiline output from the executeRcommand and executeRScript functions
  * using regular expressions
+ * 
  * @param {string} commandResult the multiline result of RScript execution
  * @returns {String[]} an array containing all the results 
  */
@@ -183,3 +209,5 @@ module.exports = {
     executeRCommand,
     executeRScript
 }
+
+console.log(callMethod("/home/fabri/test.R", "x", ["3"]));
