@@ -185,6 +185,12 @@ callMethod = (fileLocation, methodName, params) => {
         return output;
     }
 
+    // check if params is an array of parameters
+    if (! Array.isArray(params)){
+        console.error("ERROR: params must be an Array of parameters!");
+        return output;
+    }
+
     var methodSyntax = `${methodName}(`;
     params.forEach((element) => {
         methodSyntax += `${element},`;
