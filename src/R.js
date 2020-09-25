@@ -151,7 +151,7 @@ executeRScript = (fileLocation) => {
 }
 
 /**
- * calls a R with parameters and returns the result
+ * calls a R function with parameters and returns the result
  * 
  * @param {string} fileLocation where the file containing the function is stored
  * @param {string} methodName the name of the method to execute
