@@ -111,6 +111,25 @@ executeRCommand = (command) => {
 }
 
 /**
+ * Execute in R a specific one line command - async
+ * 
+ * @param {string} command the single line R command
+ * @returns {String[]} an array containing all the results from the command execution output, null if there was an error
+ */
+executeRCommandAsync = (command) => {
+    return new Promise(function(resolve, reject) {
+
+        var result = executeRCommand(command);
+       
+        if (result){
+            resolve(result);
+        }else{
+            reject("ERROR: there was an error");
+        }
+    });
+}
+
+/**
  * execute in R all the commands in the file specified by the parameter fileLocation
  * NOTE: the function reads only variables printed to stdout by the cat() or print() function.
  * It is recommended to use the print() function insted of the cat() to avoid line break problem.
@@ -150,10 +169,67 @@ executeRScript = (fileLocation) => {
 
 }
 
+/**
+ * calls a R function with parameters and returns the result
+ * 
+ * @param {string} fileLocation where the file containing the function is stored
+ * @param {string} methodName the name of the method to execute
+ * @param {String []} params a list of parameters to pass to the function
+ * @returns {string} the execution output of the function
+ */
+callMethod = (fileLocation, methodName, params) => {
+    let output;
+
+    if (!methodName || !fileLocation || !params){
+        console.error("ERROR: please provide valid parameters - methodName, fileLocation and params cannot be null");
+        return output;
+    }
+
+    // check if params is an array of parameters
+    if (! Array.isArray(params)){
+        console.error("ERROR: params must be an Array of parameters!");
+        return output;
+    }
+
+    var methodSyntax = `${methodName}(`;
+    params.forEach((element) => {
+        methodSyntax += `${element},`;
+    });
+    var methodSyntax = methodSyntax.slice(0,-1);
+    methodSyntax += ")";
+
+    output = executeRCommand(`source('${fileLocation}') ; print(${methodSyntax})`);
+    
+    return output;
+}
+
+/**
+ * calls a R function with parameters and returns the result - async
+ * 
+ * @param {string} fileLocation where the file containing the function is stored
+ * @param {string} methodName the name of the method to execute
+ * @param {String []} params a list of parameters to pass to the function
+ * @returns {string} the execution output of the function
+ */
+callMethodAsync = (fileLocation, methodName, params) => {
+    return new Promise(function(resolve, reject) {
+
+        var result = callMethod(fileLocation, methodName, params);
+
+        if (result) {
+            resolve(result);
+        }else{
+            reject("ERROR: there was an error");
+        }
+    })
+}
+
+
 
 /**
  * filters the multiline output from the executeRcommand and executeRScript functions
  * using regular expressions
+ * 
  * @param {string} commandResult the multiline result of RScript execution
  * @returns {String[]} an array containing all the results 
  */
@@ -181,5 +257,8 @@ filterMultiline = (commandResult) => {
 
 module.exports = {
     executeRCommand,
-    executeRScript
+    executeRCommandAsync,
+    executeRScript,
+    callMethod,
+    callMethodAsync
 }

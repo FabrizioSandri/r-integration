@@ -61,6 +61,55 @@ console.log(result);
 
 > [ '6' ]
 ```
+
+### Call a R function with parameters
+If you want to execute a R function in an external file you can use the `callMethod` function by passing the fileLocation, methodName (function to call) and params (the params passed to methodName at call). Note that params must be an array of parameters
+
+
+##### Example
+Suppose we have a R script located in `./scripts/test.R`
+```R
+x = function(data) {
+    return(data * 2)
+}
+```
+Now from the NodeJS environment we can call the `x` function 
+```js
+// In NodeJS
+const R = require('r-integration');
+
+let result = R.callMethod("./scripts/test.R", "x", ["2"]);
+console.log(result);
+
+> [ '4' ]
+```
+
+### Async calls
+If you need to execute asynchronously the functions `executeRCommand` and `callMethod` you have to use `executeRCommandAsync` and `callMethodAsync`by using promises
+
+
+##### Example
+Suppose we have a R script located in `./scripts/test.R`
+```R
+x = function(data) {
+    return(data * 2)
+}
+```
+Then in Node JS you can use promises in the following way
+```js
+// In NodeJS
+const R = require('r-integration');
+
+callMethodAsync("./scripts/test.R", "x", ["2"]).then((result) => {
+    console.log(result);
+}).catch((error) => {
+    console.error(error);
+})
+
+> [ '4' ]
+```
+
+
 ### R scripts syntax rules
 In order to read the R script output from the Node JS environment you can use 2 methods
  1. use the R `print(...)` function 
