@@ -174,7 +174,7 @@ executeRScript = (fileLocation) => {
  * 
  * @param {string} fileLocation where the file containing the function is stored
  * @param {string} methodName the name of the method to execute
- * @param {String []} params a list of parameters to pass to the function
+ * @param {String []} params a list of parameters to pass to the function 
  * @returns {string} the execution output of the function
  */
 callMethod = (fileLocation, methodName, params) => {
@@ -185,16 +185,19 @@ callMethod = (fileLocation, methodName, params) => {
         return output;
     }
 
-    // check if params is an array of parameters
-    if (! Array.isArray(params)){
-        console.error("ERROR: params must be an Array of parameters!");
-        return output;
+    var methodSyntax = `${methodName}(`;  
+
+    // check if params is an array of parameters or an object
+    if (Array.isArray(params)){
+        params.forEach((element) => {
+            methodSyntax += `${element},`;
+        });
+    }else{
+        for (const [key, value] of Object.entries(params)) {
+            methodSyntax += `${key}=${value},`;
+        }
     }
 
-    var methodSyntax = `${methodName}(`;
-    params.forEach((element) => {
-        methodSyntax += `${element},`;
-    });
     var methodSyntax = methodSyntax.slice(0,-1);
     methodSyntax += ")";
 

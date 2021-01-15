@@ -63,7 +63,7 @@ console.log(result);
 ```
 
 ### Call a R function with parameters
-If you want to execute a R function in an external file you can use the `callMethod` function by passing the fileLocation, methodName (function to call) and params (the params passed to methodName at call). Note that params must be an array of parameters
+If you want to execute a R function in an external file you can use the `callMethod` function by passing the fileLocation, methodName (function to call) and params (the params passed to methodName at call). Note that params must be an array of parameters or an Object in the format {variableName: "value"}
 
 
 ##### Example
@@ -79,6 +79,17 @@ Now from the NodeJS environment we can call the `x` function
 const R = require('r-integration');
 
 let result = R.callMethod("./scripts/test.R", "x", ["2"]);
+console.log(result);
+
+> [ '4' ]
+```
+
+Alternative: Object as parameter
+```js
+// In NodeJS
+const R = require('r-integration');
+
+let result = R.callMethod("./scripts/test.R", "x", {data: "2"});
 console.log(result);
 
 > [ '4' ]
