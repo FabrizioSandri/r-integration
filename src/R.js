@@ -190,11 +190,19 @@ callMethod = (fileLocation, methodName, params) => {
     // check if params is an array of parameters or an object
     if (Array.isArray(params)){
         params.forEach((element) => {
-            methodSyntax += `${element},`;
+            if (Array.isArray(element)){
+                methodSyntax += `c(${element}),`;
+            }else{
+                methodSyntax += `${element},`;
+            }
         });
     }else{
         for (const [key, value] of Object.entries(params)) {
-            methodSyntax += `${key}=${value},`;
+            if (Array.isArray(value)){
+                methodSyntax += `${key}=c(${value}),`;
+            }else{
+                methodSyntax += `${key}=${value},`;
+            }
         }
     }
 
