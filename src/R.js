@@ -37,7 +37,8 @@ executeShellCommand = (command) => {
     let stderr;
 
     try {
-        stdout = child_process.execSync(command,  {stdio : 'pipe' }).toString()
+        stdout = child_process.execSync(command,  {stdio : 'pipe' }).toString();
+        stdout = stdout.replace(/\"/g, '');
     }catch(error){
         stderr = error;
     }
@@ -170,6 +171,30 @@ executeRScript = (fileLocation) => {
 }
 
 /**
+ * Formats the parameters so R could read them
+ */
+convertParamsArray = (params) => {
+    var methodSyntax = ``;  
+
+    if (Array.isArray(params)){
+        methodSyntax += "c(";
+
+        params.forEach((element) => {
+            methodSyntax += convertParamsArray(element) ;
+        });
+        methodSyntax = methodSyntax.slice(0,-1);
+        methodSyntax += "),";
+    }else if (typeof params == "string"){
+        methodSyntax += `'${params}',`;
+    }else {
+        methodSyntax += `${params},`;
+    }
+
+    return methodSyntax;
+}
+
+
+/**
  * calls a R function with parameters and returns the result
  * 
  * @param {string} fileLocation where the file containing the function is stored
@@ -190,16 +215,14 @@ callMethod = (fileLocation, methodName, params) => {
     // check if params is an array of parameters or an object
     if (Array.isArray(params)){
         params.forEach((element) => {
-            if (Array.isArray(element)){
-                methodSyntax += `c(${element}),`;
-            }else{
-                methodSyntax += `${element},`;
-            }
+            methodSyntax += convertParamsArray(element);
         });
     }else{
         for (const [key, value] of Object.entries(params)) {
             if (Array.isArray(value)){
-                methodSyntax += `${key}=c(${value}),`;
+                methodSyntax += `${key}=${convertParamsArray(value)}`;
+            }else if (typeof value == "string"){
+                methodSyntax += `${key}='${value}',`;   // string preserve quotes
             }else{
                 methodSyntax += `${key}=${value},`;
             }
