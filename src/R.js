@@ -1,4 +1,5 @@
 const fs = require("fs");
+const pt = require('path');
 var child_process = require('child_process');
 
 
@@ -50,30 +51,45 @@ executeShellCommand = (command) => {
  * checks if Rscript(R) is installed od the system and returns
  * the path where the binary is installed
  * 
+ * @param {string} path alternative path to use as binaries directory
  * @returns {string} the path where the Rscript binary is installed, null otherwise
  */
-isRscriptInstallaed = () => {
+isRscriptInstallaed = (path) => {
     var installationDir = null;
 
     switch(getCurrentOs()){
         case "win":
-            if (fs.lstatSync("C:\\Program Files\\R").isDirectory()){
-                // Rscript is installed, let's find the path (verison problems)
-                installationDir = "C:\\Program Files\\R";
+            if (!path){
+                path = pt.join("C:\\Program Files\\R");
+            }
 
-                fs.readdirSync(installationDir).forEach(obj => {
-                    installationDir += `\\${obj}\\bin\\Rscript.exe`;
-                });
+            if (fs.existsSync(path)){
+                // Rscript is installed, let's find the path (version problems)
+
+                let dirContent = fs.readdirSync(installationDir);
+                if (dirContent.length != 0){
+                    let lastVersion = dirContent[dirContent.length - 1];
+                    installationDir = pt.join(path, lastVersion, "bin", "Rscript.exe");
+                }
             }
             break;
         case "mac":
         case "lin":
-            // the command "which" is used to find the Rscript installation dir
-            let result = executeShellCommand("which Rscript").stdout;
-            if (result){
-                // Rscript is installed
-                installationDir = result.replace("\n", "");
+            if (!path){
+                // the command "which" is used to find the Rscript installation dir
+                path = executeShellCommand("which Rscript").stdout;
+                if (path){
+                    // Rscript is installed
+                    installationDir = path.replace("\n", "");
+                }
+            }else{
+                path = pt.join(path, "Rscript");
+                if (fs.existsSync(path)) {
+                    //file Rscript exists
+                    installationDir = path;
+                }
             }
+
             break;
         default:
             break;
@@ -86,11 +102,12 @@ isRscriptInstallaed = () => {
  * Execute in R a specific one line command
  * 
  * @param {string} command the single line R command
+ * @param {string} RBinariesLocation optional parameter to specify an optional location for the Rscript binary
  * @returns {String[]} an array containing all the results from the command execution output, null if there was an error
  */
-executeRCommand = (command) => {
+executeRCommand = (command, RBinariesLocation) => {
 
-    let RscriptBinaryPath = isRscriptInstallaed();
+    let RscriptBinaryPath = isRscriptInstallaed(RBinariesLocation);
     let output;
 
     if (RscriptBinaryPath){
@@ -138,11 +155,12 @@ executeRCommandAsync = (command) => {
  * for example cat(" ... \n")
  * 
  * @param {string} fileLocation where the file to execute is stored
+ * @param {string} RBinariesLocation optional parameter to specify an optional location for the Rscript binary
  * @returns {String[]} an array containing all the results from the command execution output, null if there was an error
  */
-executeRScript = (fileLocation) => {
+executeRScript = (fileLocation, RBinariesLocation) => {
    
-    let RscriptBinaryPath = isRscriptInstallaed();
+    let RscriptBinaryPath = isRscriptInstallaed(RBinariesLocation);
     let output;
 
     if (! fs.existsSync(fileLocation)) {
