@@ -102,7 +102,7 @@ isRscriptInstallaed = (path) => {
  * Execute in R a specific one line command
  * 
  * @param {string} command the single line R command
- * @param {string} RBinariesLocation optional parameter to specify an optional location for the Rscript binary
+ * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
  * @returns {String[]} an array containing all the results from the command execution output, null if there was an error
  */
 executeRCommand = (command, RBinariesLocation) => {
@@ -132,12 +132,13 @@ executeRCommand = (command, RBinariesLocation) => {
  * Execute in R a specific one line command - async
  * 
  * @param {string} command the single line R command
+ * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
  * @returns {String[]} an array containing all the results from the command execution output, null if there was an error
  */
-executeRCommandAsync = (command) => {
+executeRCommandAsync = (command, RBinariesLocation) => {
     return new Promise(function(resolve, reject) {
 
-        var result = executeRCommand(command);
+        var result = executeRCommand(command, RBinariesLocation);
        
         if (result){
             resolve(result);
@@ -155,7 +156,7 @@ executeRCommandAsync = (command) => {
  * for example cat(" ... \n")
  * 
  * @param {string} fileLocation where the file to execute is stored
- * @param {string} RBinariesLocation optional parameter to specify an optional location for the Rscript binary
+ * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
  * @returns {String[]} an array containing all the results from the command execution output, null if there was an error
  */
 executeRScript = (fileLocation, RBinariesLocation) => {
@@ -218,9 +219,10 @@ convertParamsArray = (params) => {
  * @param {string} fileLocation where the file containing the function is stored
  * @param {string} methodName the name of the method to execute
  * @param {String []} params a list of parameters to pass to the function 
+ * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
  * @returns {string} the execution output of the function
  */
-callMethod = (fileLocation, methodName, params) => {
+callMethod = (fileLocation, methodName, params, RBinariesLocation) => {
     let output;
 
     if (!methodName || !fileLocation || !params){
@@ -250,7 +252,7 @@ callMethod = (fileLocation, methodName, params) => {
     var methodSyntax = methodSyntax.slice(0,-1);
     methodSyntax += ")";
 
-    output = executeRCommand(`source('${fileLocation}') ; print(${methodSyntax})`);
+    output = executeRCommand(`source('${fileLocation}') ; print(${methodSyntax})`, RBinariesLocation);
     
     return output;
 }
@@ -261,12 +263,13 @@ callMethod = (fileLocation, methodName, params) => {
  * @param {string} fileLocation where the file containing the function is stored
  * @param {string} methodName the name of the method to execute
  * @param {String []} params a list of parameters to pass to the function
+ * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
  * @returns {string} the execution output of the function
  */
-callMethodAsync = (fileLocation, methodName, params) => {
+callMethodAsync = (fileLocation, methodName, params, RBinariesLocation) => {
     return new Promise(function(resolve, reject) {
 
-        var result = callMethod(fileLocation, methodName, params);
+        var result = callMethod(fileLocation, methodName, params, RBinariesLocation);
 
         if (result) {
             resolve(result);

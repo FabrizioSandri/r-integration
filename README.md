@@ -139,6 +139,20 @@ result <- max(x, y, z)
 cat(result, sep="\n")
 ```
 
+### Alternative R binaries location
+If you installed R in a not standard location you can provide an additional parameter `RBinariesLocation` to all the functions mentioned above to specify the alternative location. 
+##### Example
+Suppose we have a R installed in the directory `C:\Program Files\R` and we want to execute a R command by using the binaries installed in the mentioned directory. The solution is to execute the `executeRCommand(command, RBinariesLocation)` by passing the correct binaries location.
+```js
+// In NodeJS
+const R = require('r-integration');
+
+let result = R.executeRCommand("max(1,2,3)", "C:\\Program Files\\R");
+console.log(result);
+
+> [ '3' ]
+```
+
 ## Building Requirements
 
 -   [R](https://www.r-project.org/)
