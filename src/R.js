@@ -66,7 +66,7 @@ isRscriptInstallaed = (path) => {
             if (fs.existsSync(path)){
                 // Rscript is installed, let's find the path (version problems)
 
-                let dirContent = fs.readdirSync(installationDir);
+                let dirContent = fs.readdirSync(path);
                 if (dirContent.length != 0){
                     let lastVersion = dirContent[dirContent.length - 1];
                     installationDir = pt.join(path, lastVersion, "bin", "Rscript.exe");
