@@ -118,7 +118,7 @@ executeRCommand = (command, RBinariesLocation) => {
             output = commandResult.stdout;
             output = filterMultiline(output);
         }else{
-            console.error(`[R: compile error] ${commandResult.stderr.stderr}`);
+            console.error(`[R: compile error] ${commandResult.stderr}`);
         }
 
     }else{
@@ -178,7 +178,7 @@ executeRScript = (fileLocation, RBinariesLocation) => {
             output = commandResult.stdout;
             output = filterMultiline(output);
         }else{
-            console.error(`[R: compile error] ${commandResult.stderr.stderr}`);
+            console.error(`[R: compile error] ${commandResult.stderr}`);
         }
 
     }else{
