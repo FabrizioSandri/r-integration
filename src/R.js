@@ -52,10 +52,10 @@ executeShellCommand = (command) => {
  * the path where the binary is installed
  * 
  * @param {string} path alternative path to use as binaries directory
- * @returns {string} the path where the Rscript binary is installed, null otherwise
+ * @returns {string} the path where the Rscript binary is installed, -1 otherwise
  */
 isRscriptInstallaed = (path) => {
-    var installationDir = null;
+    var installationDir = -1;
 
     switch(getCurrentOs()){
         case "win":
@@ -103,12 +103,12 @@ isRscriptInstallaed = (path) => {
  * 
  * @param {string} command the single line R command
  * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
- * @returns {String[]} an array containing all the results from the command execution output, null if there was an error
+ * @returns {String[]} an array containing all the results from the command execution output, -1 if there was an error
  */
 executeRCommand = (command, RBinariesLocation) => {
 
     let RscriptBinaryPath = isRscriptInstallaed(RBinariesLocation);
-    let output;
+    let output = -1;
 
     if (RscriptBinaryPath){
         var commandToExecute = `"${RscriptBinaryPath}" -e "${command}"`;
@@ -157,12 +157,12 @@ executeRCommandAsync = (command, RBinariesLocation) => {
  * 
  * @param {string} fileLocation where the file to execute is stored
  * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
- * @returns {String[]} an array containing all the results from the command execution output, null if there was an error
+ * @returns {String[]} an array containing all the results from the command execution output, -1 if there was an error
  */
 executeRScript = (fileLocation, RBinariesLocation) => {
    
     let RscriptBinaryPath = isRscriptInstallaed(RBinariesLocation);
-    let output;
+    let output = -1;
 
     if (! fs.existsSync(fileLocation)) {
         //file doesn't exist
@@ -220,10 +220,10 @@ convertParamsArray = (params) => {
  * @param {string} methodName the name of the method to execute
  * @param {String []} params a list of parameters to pass to the function 
  * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
- * @returns {string} the execution output of the function
+ * @returns {string} the execution output of the function, -1 in case of error
  */
 callMethod = (fileLocation, methodName, params, RBinariesLocation) => {
-    let output;
+    let output = -1;
 
     if (!methodName || !fileLocation || !params){
         console.error("ERROR: please provide valid parameters - methodName, fileLocation and params cannot be null");
