@@ -218,7 +218,7 @@ convertParamsArray = (params) => {
  * 
  * @param {string} fileLocation where the file containing the function is stored
  * @param {string} methodName the name of the method to execute
- * @param {String []} params a list of parameters to pass to the function 
+ * @param {Object} params an object containing a binding between parameter names and value to pass to the function or an array 
  * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
  * @returns {string} the execution output of the function, 0 in case of error
  */
@@ -234,9 +234,7 @@ callMethod = (fileLocation, methodName, params, RBinariesLocation) => {
 
     // check if params is an array of parameters or an object
     if (Array.isArray(params)){
-        params.forEach((element) => {
-            methodSyntax += convertParamsArray(element);
-        });
+        methodSyntax += convertParamsArray(params);
     }else{
         for (const [key, value] of Object.entries(params)) {
             if (Array.isArray(value)){
@@ -284,7 +282,7 @@ callMethodAsync = (fileLocation, methodName, params, RBinariesLocation) => {
  * calls a standard R function with parameters and returns the result
  * 
  * @param {string} methodName the name of the method to execute
- * @param {String []} params a list of parameters to pass to the function 
+ * @param {Object} params an object containing a binding between parameter names and value to pass to the function or an array 
  * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
  * @returns {string} the execution output of the function, 0 in case of error
  */
@@ -300,9 +298,7 @@ callMethodAsync = (fileLocation, methodName, params, RBinariesLocation) => {
 
     // check if params is an array of parameters or an object
     if (Array.isArray(params)){
-        params.forEach((element) => {
-            methodSyntax += convertParamsArray(element);
-        });
+        methodSyntax += convertParamsArray(params);
     }else{
         for (const [key, value] of Object.entries(params)) {
             if (Array.isArray(value)){
@@ -337,18 +333,20 @@ filterMultiline = (commandResult) => {
     // remove last newline to avoid empty results
     // NOTE: windows newline is composed by \r\n, GNU/Linux and Mac OS newline is \n
     var currentOS = getCurrentOs();
+    
+    commandResult = commandResult.replace(/\[.\] /g, "");
 
     if (currentOS == "win"){
         commandResult = commandResult.replace(/\r\n$/g, "");
+        commandResult = commandResult.replace(/\s/g, "\r\n");
+
         data = commandResult.split("\r\n");
     }else{
         commandResult = commandResult.replace(/\n$/g, "");
+        commandResult = commandResult.replace(/\s/g, "\n");
+
         data = commandResult.split("\n");
     }
-
-    data.forEach((element, index) => {
-        data[index] = element.replace(/\[.\] /g, "");
-    });
 
     return data;
 }
