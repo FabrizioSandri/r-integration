@@ -63,8 +63,8 @@ console.log(result);
 ```
 
 ### Call a R function with parameters
-If you want to execute a R function in an external file you can use the `callMethod` function by passing the fileLocation, methodName (function to call) and params (the params passed to methodName at call). Note that params must be an array of parameters or an Object in the format {variableName: "value"}
-
+If you want to execute a R function in an external file you can use the `callMethod` function by passing the fileLocation, methodName (function to call) and params (the params passed to methodName at call). Note that params must be an Object in the format `{variableName1: "value", variableName2: "value", .. }`. 
+You can also pass an array as an argument to a function. NOTE that the resulting array will be converted into an R array of the format `c(...)`.
 
 ##### Example
 Suppose we have a R script located in `./scripts/test.R`
@@ -78,17 +78,6 @@ Now from the NodeJS environment we can call the `x` function
 // In NodeJS
 const R = require('r-integration');
 
-let result = R.callMethod("./scripts/test.R", "x", ["2"]);
-console.log(result);
-
-> [ '4' ]
-```
-
-Alternative: Object as parameter
-```js
-// In NodeJS
-const R = require('r-integration');
-
 let result = R.callMethod("./scripts/test.R", "x", {data: "2"});
 console.log(result);
 
@@ -96,7 +85,7 @@ console.log(result);
 ```
 
 ### Call a standard R function with parameters
-If you want to execute a standard R function you can use the `callStandardMethod` function by passing the the methodName (function to call) and params (the params passed to methodName at call). Note that params must be an array of parameters or an Object in the format {parameterName: "value"}
+If you want to execute a standard R function you can use the `callStandardMethod` function by passing the the methodName (function to call) and params (the params passed to methodName at call). Note that params must be an Object in the format `{variableName1: "value", variableName2: "value", .. }`. 
 
 ##### Example
 Suppose you want to call the standard library max function
@@ -110,8 +99,7 @@ console.log(result);
 
 > [ '4' ]
 ```
-
-
+**NOTE:** in the above example an array is passed to the function max.
 
 ### Async calls
 If you need to execute asynchronously the functions `executeRCommand` and `callMethod` you have to use `executeRCommandAsync` and `callMethodAsync`by using promises
@@ -129,7 +117,7 @@ Then in Node JS you can use promises in the following way
 // In NodeJS
 const R = require('r-integration');
 
-callMethodAsync("./scripts/test.R", "x", ["2"]).then((result) => {
+callMethodAsync("./scripts/test.R", "x", {data: "2"}).then((result) => {
     console.log(result);
 }).catch((error) => {
     console.error(error);
@@ -159,6 +147,7 @@ cat(result, sep="\n")
 
 ### Alternative R binaries location
 If you installed R in a not standard location you can provide an additional parameter `RBinariesLocation` to all the functions mentioned above to specify the alternative location. 
+
 ##### Example
 Suppose we have a R installed in the directory `C:\Program Files\R` and we want to execute a R command by using the binaries installed in the mentioned directory. The solution is to execute the `executeRCommand(command, RBinariesLocation)` by passing the correct binaries location.
 ```js
@@ -172,7 +161,6 @@ console.log(result);
 ```
 
 ## Building Requirements
-
 -   [R](https://www.r-project.org/)
 -   [Node.js](https://nodejs.org)
 -   [npm](https://www.npmjs.com/)
