@@ -42,7 +42,7 @@ describe("validator callMethod()", () => {
 	})
 
     it("should return the max between 10 and 20 with object parameters", ()=> {
-		expect(validator.callMethod("test/RScripts/test_method_multiple_params.R", "max",{x:10, y:20})).to.have.members(["20"])
+		expect(validator.callMethod("test/RScripts/test_method_multiple_params.R", "newMax",{x:10, y:20})).to.have.members(["20"])
 	})
 
 })
