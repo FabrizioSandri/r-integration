@@ -95,6 +95,24 @@ console.log(result);
 > [ '4' ]
 ```
 
+### Call a standard R function with parameters
+If you want to execute a standard R function you can use the `callStandardMethod` function by passing the the methodName (function to call) and params (the params passed to methodName at call). Note that params must be an array of parameters or an Object in the format {parameterName: "value"}
+
+##### Example
+Suppose you want to call the standard library max function
+From the NodeJS environment we can call the `max` function in the following way
+```js
+// In NodeJS
+const R = require('r-integration');
+
+let result = R.callStandardMethod("max", ["2","3","4"]);
+console.log(result);
+
+> [ '4' ]
+```
+
+
+
 ### Async calls
 If you need to execute asynchronously the functions `executeRCommand` and `callMethod` you have to use `executeRCommandAsync` and `callMethodAsync`by using promises
 
