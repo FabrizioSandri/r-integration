@@ -47,3 +47,23 @@ describe("validator callMethod()", () => {
 
 })
 
+
+describe("validator callStandardMethod()", () => {
+
+	it("should return 5 if calling the method max with parameter 5", ()=> {
+		expect(validator.callStandardMethod("max", [5])).to.have.members(["5"])
+	})
+
+	it("should return 5 if calling the method max with object parameter 5", ()=> {
+		expect(validator.callStandardMethod("max", {data: [5]})).to.have.members(["5"])
+	})
+
+    it("should return the max between 10 and 20", ()=> {
+		expect(validator.callStandardMethod("max", [10, 20])).to.have.members(["20"])
+	})
+
+    it("should return the max between 10 and 20 with object parameters", ()=> {
+		expect(validator.callStandardMethod("max",{x:10, y:20})).to.have.members(["20"])
+	})
+
+})
