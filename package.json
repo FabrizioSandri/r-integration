@@ -1,6 +1,6 @@
 {
   "name": "r-integration",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Simple portable library used to interact with pre-installed R compiler by running commands or scripts(files)",
   "main": "src/R.js",
   "scripts": {
