@@ -214,7 +214,7 @@ convertParamsArray = (params) => {
 
 
 /**
- * calls a R function with parameters and returns the result
+ * calls a R function located in an external script with parameters and returns the result
  * 
  * @param {string} fileLocation where the file containing the function is stored
  * @param {string} methodName the name of the method to execute
@@ -280,6 +280,49 @@ callMethodAsync = (fileLocation, methodName, params, RBinariesLocation) => {
 }
 
 
+/**
+ * calls a standard R function with parameters and returns the result
+ * 
+ * @param {string} methodName the name of the method to execute
+ * @param {String []} params a list of parameters to pass to the function 
+ * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
+ * @returns {string} the execution output of the function, 0 in case of error
+ */
+ callStandardMethod = (methodName, params, RBinariesLocation) => {
+    let output = 0;
+
+    if (!methodName || !params){
+        console.error("ERROR: please provide valid parameters - methodName and params cannot be null");
+        return output;
+    }
+
+    var methodSyntax = `${methodName}(`;  
+
+    // check if params is an array of parameters or an object
+    if (Array.isArray(params)){
+        params.forEach((element) => {
+            methodSyntax += convertParamsArray(element);
+        });
+    }else{
+        for (const [key, value] of Object.entries(params)) {
+            if (Array.isArray(value)){
+                methodSyntax += `${key}=${convertParamsArray(value)}`;
+            }else if (typeof value == "string"){
+                methodSyntax += `${key}='${value}',`;   // string preserve quotes
+            }else{
+                methodSyntax += `${key}=${value},`;
+            }
+        }
+    }
+
+    var methodSyntax = methodSyntax.slice(0,-1);
+    methodSyntax += ")";
+
+    output = executeRCommand(`print(${methodSyntax})`, RBinariesLocation);
+    
+    return output;
+}
+
 
 /**
  * filters the multiline output from the executeRcommand and executeRScript functions
@@ -315,5 +358,6 @@ module.exports = {
     executeRCommandAsync,
     executeRScript,
     callMethod,
-    callMethodAsync
+    callMethodAsync,
+    callStandardMethod
 }
