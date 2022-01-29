@@ -337,15 +337,16 @@ filterMultiline = (commandResult) => {
     commandResult = commandResult.replace(/\[.\] /g, "");
 
     if (currentOS == "win"){
-        commandResult = commandResult.replace(/\r\n$/g, "");
-        commandResult = commandResult.replace(/\s+/g, "\r\n");
+        commandResult = commandResult.replace(/\t*\s*[\r\n]*$/g, "");
+        commandResult = commandResult.replace(/[\s\t]+/g, "\r\n");
 
-        data = commandResult.split("\r\n");
+        data = commandResult.split(/[\r\n]+/)
     }else{
-        commandResult = commandResult.replace(/\n$/g, "");
-        commandResult = commandResult.replace(/\s+/g, "\n");
 
-        data = commandResult.split("\n");
+        commandResult = commandResult.replace(/\t*\s*\n*$/g, "");
+        commandResult = commandResult.replace(/[\s\t]+/g, "\n");
+
+        data = commandResult.split(/[\n]+/)
     }
 
     return data;
