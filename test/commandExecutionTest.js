@@ -66,4 +66,14 @@ describe("validator callStandardMethod()", () => {
 		expect(validator.callStandardMethod("max",{x:10, y:20})).to.have.members(["20"])
 	})
 
+    it("should return the upper case of an array in case of NA values", ()=> {
+        const arrayOfStrings = ["a", "b", "c", , "f", "g"]
+        expect(validator.callStandardMethod("toupper",arrayOfStrings)).to.have.members(['A', 'B', 'C', undefined, 'F', 'G'])
+    })
+
+    it("should return the max between a list of numbers including NA, which is NA", ()=> {
+        const arrayOfStrings = [3, 1, 5, , 4, 3]
+        expect(validator.callStandardMethod("max",arrayOfStrings)).to.have.members([undefined])
+    })
+
 })
