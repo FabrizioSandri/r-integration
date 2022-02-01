@@ -39,7 +39,6 @@ executeShellCommand = (command) => {
 
     try {
         stdout = child_process.execSync(command,  {stdio : 'pipe' }).toString();
-        stdout = stdout.replace(/\"/g, '');
     }catch(error){
         stderr = error;
     }
@@ -106,7 +105,6 @@ isRscriptInstallaed = (path) => {
  * @returns {String[]} an array containing all the results from the command execution output, 0 if there was an error
  */
 executeRCommand = (command, RBinariesLocation) => {
-
     let RscriptBinaryPath = isRscriptInstallaed(RBinariesLocation);
     let output = 0;
 
@@ -198,13 +196,16 @@ convertParamsArray = (params) => {
     if (Array.isArray(params)){
         methodSyntax += "c(";
 
-        params.forEach((element) => {
-            methodSyntax += convertParamsArray(element) ;
-        });
+        for(let i=0;i<params.length; i++){
+            methodSyntax += convertParamsArray(params[i]) ;
+        }
+        
         methodSyntax = methodSyntax.slice(0,-1);
         methodSyntax += "),";
     }else if (typeof params == "string"){
         methodSyntax += `'${params}',`;
+    }else if (params==undefined){
+        methodSyntax += `NA,`;
     }else {
         methodSyntax += `${params},`;
     }
@@ -241,6 +242,8 @@ callMethod = (fileLocation, methodName, params, RBinariesLocation) => {
                 methodSyntax += `${key}=${convertParamsArray(value)}`;
             }else if (typeof value == "string"){
                 methodSyntax += `${key}='${value}',`;   // string preserve quotes
+            }else if (value==undefined){
+                methodSyntax += `${key}=NA,`;  
             }else{
                 methodSyntax += `${key}=${value},`;
             }
@@ -295,7 +298,7 @@ callMethodAsync = (fileLocation, methodName, params, RBinariesLocation) => {
     }
 
     var methodSyntax = `${methodName}(`;  
-
+    
     // check if params is an array of parameters or an object
     if (Array.isArray(params)){
         methodSyntax += convertParamsArray(params);
@@ -305,6 +308,8 @@ callMethodAsync = (fileLocation, methodName, params, RBinariesLocation) => {
                 methodSyntax += `${key}=${convertParamsArray(value)}`;
             }else if (typeof value == "string"){
                 methodSyntax += `${key}='${value}',`;   // string preserve quotes
+            }else if (value==undefined){
+                methodSyntax += `${key}=NA,`;  
             }else{
                 methodSyntax += `${key}=${value},`;
             }
@@ -334,20 +339,43 @@ filterMultiline = (commandResult) => {
     // NOTE: windows newline is composed by \r\n, GNU/Linux and Mac OS newline is \n
     var currentOS = getCurrentOs();
     
-    commandResult = commandResult.replace(/\[.\] /g, "");
+    commandResult = commandResult.replace(/\[\d+\] /g, "");
 
     if (currentOS == "win"){
         commandResult = commandResult.replace(/\t*\s*[\r\n]*$/g, "");
         commandResult = commandResult.replace(/[\s\t]+/g, "\r\n");
 
-        data = commandResult.split(/[\r\n]+/)
     }else{
 
         commandResult = commandResult.replace(/\t*\s*\n*$/g, "");
         commandResult = commandResult.replace(/[\s\t]+/g, "\n");
-
-        data = commandResult.split(/[\n]+/)
     }
+
+    // check if data is JSON parsable
+    try {
+        data = [ JSON.parse(commandResult) ];
+    } catch (e) {
+        // the result is not json parsable -> split
+        if (currentOS == "win"){
+            data = commandResult.split(/[\r\n]+/)
+        }else{
+            data = commandResult.split(/[\n]+/)
+        }
+        
+        // find undefined or NaN and remove quotes
+        for(let i=0; i<data.length; i++){
+            if (data[i] == "NA"){
+                data[i] = undefined;
+            }else if (data[i] == "NaN"){
+                data[i] = NaN;
+            }else{
+                data[i] = data[i].replace(/\"/g, "")
+            }
+            
+        }
+
+    }
+
 
     return data;
 }
