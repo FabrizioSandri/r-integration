@@ -339,30 +339,41 @@ filterMultiline = (commandResult) => {
     // NOTE: windows newline is composed by \r\n, GNU/Linux and Mac OS newline is \n
     var currentOS = getCurrentOs();
     
-    commandResult = commandResult.replace(/\[.\] /g, "");
+    commandResult = commandResult.replace(/\[\d+\] /g, "");
 
     if (currentOS == "win"){
         commandResult = commandResult.replace(/\t*\s*[\r\n]*$/g, "");
         commandResult = commandResult.replace(/[\s\t]+/g, "\r\n");
 
-        data = commandResult.split(/[\r\n]+/)
     }else{
 
         commandResult = commandResult.replace(/\t*\s*\n*$/g, "");
         commandResult = commandResult.replace(/[\s\t]+/g, "\n");
-
-        data = commandResult.split(/[\n]+/)
     }
 
-    // find undefined or NaN and remove quotes
-    for(let i=0; i<data.length; i++){
-        if (data[i] == "NA"){
-            data[i] = undefined;
-        }else if (data[i] == "NaN"){
-            data[i] = NaN;
+    // check if data is JSON parsable
+    try {
+        data = [ JSON.parse(commandResult) ];
+    } catch (e) {
+        // the result is not json parsable -> split
+        if (currentOS == "win"){
+            data = commandResult.split(/[\r\n]+/)
         }else{
-            data[i] = data[i].replace(/\"/g, "")
+            data = commandResult.split(/[\n]+/)
         }
+        
+        // find undefined or NaN and remove quotes
+        for(let i=0; i<data.length; i++){
+            if (data[i] == "NA"){
+                data[i] = undefined;
+            }else if (data[i] == "NaN"){
+                data[i] = NaN;
+            }else{
+                data[i] = data[i].replace(/\"/g, "")
+            }
+            
+        }
+
     }
 
 
