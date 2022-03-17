@@ -1,6 +1,6 @@
 const fs = require("fs");
-const pt = require('path');
-var child_process = require('child_process');
+const pt = require("path");
+var child_process = require("child_process");
 
 
 /**
@@ -12,19 +12,19 @@ var child_process = require('child_process');
  *  - "mac" -> for MacOS based Systems
  */
 getCurrentOs = () => {
-    var processPlatform = process.platform;
-    var currentOs;
+	var processPlatform = process.platform;
+	var currentOs;
 
-    if (processPlatform === "win32"){
-        currentOs = "win";
-    }else if(processPlatform === "linux" || processPlatform === "openbsd" || processPlatform === "freebsd"){
-        currentOs = "lin";
-    }else {
-        currentOs = "mac"
-    }   
+	if (processPlatform === "win32") {
+		currentOs = "win";
+	} else if (processPlatform === "linux" || processPlatform === "openbsd" || processPlatform === "freebsd") {
+		currentOs = "lin";
+	} else {
+		currentOs = "mac"
+	}
 
-    return currentOs;
-}
+	return currentOs;
+};
 
 
 /**
@@ -34,17 +34,22 @@ getCurrentOs = () => {
  * @returns {{string, string}} the command execution result
  */
 executeShellCommand = (command) => {
-    let stdout;
-    let stderr;
+	let stdout;
+	let stderr;
 
-    try {
-        stdout = child_process.execSync(command,  {stdio : 'pipe' }).toString();
-    }catch(error){
-        stderr = error;
-    }
+	try {
+		stdout = child_process.execSync(command, {
+			stdio: "pipe"
+		}).toString();
+	} catch (error) {
+		stderr = error;
+	}
 
-    return {stdout, stderr};
-}
+	return {
+		stdout,
+		stderr
+	};
+};
 
 /**
  * checks if Rscript(R) is installed od the system and returns
@@ -54,48 +59,48 @@ executeShellCommand = (command) => {
  * @returns {string} the path where the Rscript binary is installed, 0 otherwise
  */
 isRscriptInstallaed = (path) => {
-    var installationDir = 0;
+	var installationDir = 0;
 
-    switch(getCurrentOs()){
-        case "win":
-            if (!path){
-                path = pt.join("C:\\Program Files\\R");
-            }
+	switch (getCurrentOs()) {
+		case "win":
+			if (!path) {
+				path = pt.join("C:\\Program Files\\R");
+			}
 
-            if (fs.existsSync(path)){
-                // Rscript is installed, let's find the path (version problems)
+			if (fs.existsSync(path)) {
+				// Rscript is installed, let's find the path (version problems)
 
-                let dirContent = fs.readdirSync(path);
-                if (dirContent.length != 0){
-                    let lastVersion = dirContent[dirContent.length - 1];
-                    installationDir = pt.join(path, lastVersion, "bin", "Rscript.exe");
-                }
-            }
-            break;
-        case "mac":
-        case "lin":
-            if (!path){
-                // the command "which" is used to find the Rscript installation dir
-                path = executeShellCommand("which Rscript").stdout;
-                if (path){
-                    // Rscript is installed
-                    installationDir = path.replace("\n", "");
-                }
-            }else{
-                path = pt.join(path, "Rscript");
-                if (fs.existsSync(path)) {
-                    //file Rscript exists
-                    installationDir = path;
-                }
-            }
+				let dirContent = fs.readdirSync(path);
+				if (dirContent.length != 0) {
+					let lastVersion = dirContent[dirContent.length - 1];
+					installationDir = pt.join(path, lastVersion, "bin", "Rscript.exe");
+				}
+			}
+			break;
+		case "mac":
+		case "lin":
+			if (!path) {
+				// the command "which" is used to find the Rscript installation dir
+				path = executeShellCommand("which Rscript").stdout;
+				if (path) {
+					// Rscript is installed
+					installationDir = path.replace("\n", "");
+				}
+			} else {
+				path = pt.join(path, "Rscript");
+				if (fs.existsSync(path)) {
+					//file Rscript exists
+					installationDir = path;
+				}
+			}
 
-            break;
-        default:
-            break;
-    }
+			break;
+		default:
+			break;
+	}
 
-    return installationDir;
-}
+	return installationDir;
+};
 
 /**
  * Execute in R a specific one line command
@@ -105,26 +110,26 @@ isRscriptInstallaed = (path) => {
  * @returns {String[]} an array containing all the results from the command execution output, 0 if there was an error
  */
 executeRCommand = (command, RBinariesLocation) => {
-    let RscriptBinaryPath = isRscriptInstallaed(RBinariesLocation);
-    let output = 0;
+	let RscriptBinaryPath = isRscriptInstallaed(RBinariesLocation);
+	let output = 0;
 
-    if (RscriptBinaryPath){
-        var commandToExecute = `"${RscriptBinaryPath}" -e "${command}"`;
-        var commandResult = executeShellCommand(commandToExecute);
+	if (RscriptBinaryPath) {
+		var commandToExecute = `"${RscriptBinaryPath}" -e "${command}"`;
+		var commandResult = executeShellCommand(commandToExecute);
 
-        if (commandResult.stdout){
-            output = commandResult.stdout;
-            output = filterMultiline(output);
-        }else{
-            console.error(`[R: compile error] ${commandResult.stderr}`);
-        }
+		if (commandResult.stdout) {
+			output = commandResult.stdout;
+			output = filterMultiline(output);
+		} else {
+			throw Error(`[R: compile error] ${commandResult.stderr}`);
+		}
 
-    }else{
-        console.error("R not found, maybe not installed.\nSee www.r-project.org");
-    }
+	} else {
+		throw Error("R not found, maybe not installed.\nSee www.r-project.org");
+	}
 
-    return output;
-}
+	return output;
+};
 
 /**
  * Execute in R a specific one line command - async
@@ -134,17 +139,17 @@ executeRCommand = (command, RBinariesLocation) => {
  * @returns {String[]} an array containing all the results from the command execution output, null if there was an error
  */
 executeRCommandAsync = (command, RBinariesLocation) => {
-    return new Promise(function(resolve, reject) {
+	return new Promise(function(resolve, reject) {
 
-        var result = executeRCommand(command, RBinariesLocation);
-       
-        if (result){
-            resolve(result);
-        }else{
-            reject("ERROR: there was an error");
-        }
-    });
-}
+		try {
+			var result = executeRCommand(command, RBinariesLocation);
+			resolve(result);
+		} catch (e) {
+			reject(e);
+		}
+
+	});
+};
 
 /**
  * execute in R all the commands in the file specified by the parameter fileLocation
@@ -158,60 +163,59 @@ executeRCommandAsync = (command, RBinariesLocation) => {
  * @returns {String[]} an array containing all the results from the command execution output, 0 if there was an error
  */
 executeRScript = (fileLocation, RBinariesLocation) => {
-   
-    let RscriptBinaryPath = isRscriptInstallaed(RBinariesLocation);
-    let output = 0;
 
-    if (! fs.existsSync(fileLocation)) {
-        //file doesn't exist
-        console.error(`ERROR: the file "${fileLocation} doesn't exist"`);
-        return output;     
-    }
+	let RscriptBinaryPath = isRscriptInstallaed(RBinariesLocation);
+	let output = 0;
 
-    if (RscriptBinaryPath){
-        var commandToExecute = `"${RscriptBinaryPath}" "${fileLocation}"`;
-        var commandResult = executeShellCommand(commandToExecute);
+	if (!fs.existsSync(fileLocation)) {
+		//file doesn't exist
+		throw Error(`ERROR: the file "${fileLocation}" doesn't exist`);
+	}
 
-        if (commandResult.stdout){
-            output = commandResult.stdout;
-            output = filterMultiline(output);
-        }else{
-            console.error(`[R: compile error] ${commandResult.stderr}`);
-        }
+	if (RscriptBinaryPath) {
+		var commandToExecute = `"${RscriptBinaryPath}" "${fileLocation}"`;
+		var commandResult = executeShellCommand(commandToExecute);
 
-    }else{
-        console.error("R not found, maybe not installed.\nSee www.r-project.org");
-    }
+		if (commandResult.stdout) {
+			output = commandResult.stdout;
+			output = filterMultiline(output);
+		} else {
+			throw Error(`[R: compile error] ${commandResult.stderr}`);
+		}
 
-    return output;
+	} else {
+		throw Error("R not found, maybe not installed.\nSee www.r-project.org");
+	}
 
-}
+	return output;
+
+};
 
 /**
  * Formats the parameters so R could read them
  */
 convertParamsArray = (params) => {
-    var methodSyntax = ``;  
+	var methodSyntax = ``;
 
-    if (Array.isArray(params)){
-        methodSyntax += "c(";
+	if (Array.isArray(params)) {
+		methodSyntax += "c(";
 
-        for(let i=0;i<params.length; i++){
-            methodSyntax += convertParamsArray(params[i]) ;
-        }
-        
-        methodSyntax = methodSyntax.slice(0,-1);
-        methodSyntax += "),";
-    }else if (typeof params == "string"){
-        methodSyntax += `'${params}',`;
-    }else if (params==undefined){
-        methodSyntax += `NA,`;
-    }else {
-        methodSyntax += `${params},`;
-    }
+		for (let i = 0; i < params.length; i++) {
+			methodSyntax += convertParamsArray(params[i]);
+		}
 
-    return methodSyntax;
-}
+		methodSyntax = methodSyntax.slice(0, -1);
+		methodSyntax += "),";
+	} else if (typeof params == "string") {
+		methodSyntax += `'${params}',`;
+	} else if (params == undefined) {
+		methodSyntax += `NA,`;
+	} else {
+		methodSyntax += `${params},`;
+	}
+
+	return methodSyntax;
+};
 
 
 /**
@@ -224,39 +228,38 @@ convertParamsArray = (params) => {
  * @returns {string} the execution output of the function, 0 in case of error
  */
 callMethod = (fileLocation, methodName, params, RBinariesLocation) => {
-    let output = 0;
+	let output = 0;
 
-    if (!methodName || !fileLocation || !params){
-        console.error("ERROR: please provide valid parameters - methodName, fileLocation and params cannot be null");
-        return output;
-    }
+	if (!methodName || !fileLocation || !params) {
+		throw Error("ERROR: please provide valid parameters - methodName, fileLocation and params cannot be null");
+	}
 
-    var methodSyntax = `${methodName}(`;  
+	var methodSyntax = `${methodName}(`;
 
-    // check if params is an array of parameters or an object
-    if (Array.isArray(params)){
-        methodSyntax += convertParamsArray(params);
-    }else{
-        for (const [key, value] of Object.entries(params)) {
-            if (Array.isArray(value)){
-                methodSyntax += `${key}=${convertParamsArray(value)}`;
-            }else if (typeof value == "string"){
-                methodSyntax += `${key}='${value}',`;   // string preserve quotes
-            }else if (value==undefined){
-                methodSyntax += `${key}=NA,`;  
-            }else{
-                methodSyntax += `${key}=${value},`;
-            }
-        }
-    }
+	// check if params is an array of parameters or an object
+	if (Array.isArray(params)) {
+		methodSyntax += convertParamsArray(params);
+	} else {
+		for (const [key, value] of Object.entries(params)) {
+			if (Array.isArray(value)) {
+				methodSyntax += `${key}=${convertParamsArray(value)}`;
+			} else if (typeof value == "string") {
+				methodSyntax += `${key}='${value}',`; // string preserve quotes
+			} else if (value == undefined) {
+				methodSyntax += `${key}=NA,`;
+			} else {
+				methodSyntax += `${key}=${value},`;
+			}
+		}
+	}
 
-    var methodSyntax = methodSyntax.slice(0,-1);
-    methodSyntax += ")";
+	var methodSyntax = methodSyntax.slice(0, -1);
+	methodSyntax += ")";
 
-    output = executeRCommand(`source('${fileLocation}') ; print(${methodSyntax})`, RBinariesLocation);
-    
-    return output;
-}
+	output = executeRCommand(`source('${fileLocation}') ; print(${methodSyntax})`, RBinariesLocation);
+
+	return output;
+};
 
 /**
  * calls a R function with parameters and returns the result - async
@@ -268,17 +271,17 @@ callMethod = (fileLocation, methodName, params, RBinariesLocation) => {
  * @returns {string} the execution output of the function
  */
 callMethodAsync = (fileLocation, methodName, params, RBinariesLocation) => {
-    return new Promise(function(resolve, reject) {
+	return new Promise(function(resolve, reject) {
 
-        var result = callMethod(fileLocation, methodName, params, RBinariesLocation);
+		try {
+			var result = callMethod(fileLocation, methodName, params, RBinariesLocation);
+			resolve(result);
+		} catch (e) {
+			reject(e);
+		}
 
-        if (result) {
-            resolve(result);
-        }else{
-            reject("ERROR: there was an error");
-        }
-    })
-}
+	})
+};
 
 
 /**
@@ -289,40 +292,39 @@ callMethodAsync = (fileLocation, methodName, params, RBinariesLocation) => {
  * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
  * @returns {string} the execution output of the function, 0 in case of error
  */
- callStandardMethod = (methodName, params, RBinariesLocation) => {
-    let output = 0;
+callStandardMethod = (methodName, params, RBinariesLocation) => {
+	let output = 0;
 
-    if (!methodName || !params){
-        console.error("ERROR: please provide valid parameters - methodName and params cannot be null");
-        return output;
-    }
+	if (!methodName || !params) {
+		throw Error("ERROR: please provide valid parameters - methodName and params cannot be null");
+	}
 
-    var methodSyntax = `${methodName}(`;  
-    
-    // check if params is an array of parameters or an object
-    if (Array.isArray(params)){
-        methodSyntax += convertParamsArray(params);
-    }else{
-        for (const [key, value] of Object.entries(params)) {
-            if (Array.isArray(value)){
-                methodSyntax += `${key}=${convertParamsArray(value)}`;
-            }else if (typeof value == "string"){
-                methodSyntax += `${key}='${value}',`;   // string preserve quotes
-            }else if (value==undefined){
-                methodSyntax += `${key}=NA,`;  
-            }else{
-                methodSyntax += `${key}=${value},`;
-            }
-        }
-    }
+	var methodSyntax = `${methodName}(`;
 
-    var methodSyntax = methodSyntax.slice(0,-1);
-    methodSyntax += ")";
+	// check if params is an array of parameters or an object
+	if (Array.isArray(params)) {
+		methodSyntax += convertParamsArray(params);
+	} else {
+		for (const [key, value] of Object.entries(params)) {
+			if (Array.isArray(value)) {
+				methodSyntax += `${key}=${convertParamsArray(value)}`;
+			} else if (typeof value == "string") {
+				methodSyntax += `${key}='${value}',`; // string preserve quotes
+			} else if (value == undefined) {
+				methodSyntax += `${key}=NA,`;
+			} else {
+				methodSyntax += `${key}=${value},`;
+			}
+		}
+	}
 
-    output = executeRCommand(`print(${methodSyntax})`, RBinariesLocation);
-    
-    return output;
-}
+	var methodSyntax = methodSyntax.slice(0, -1);
+	methodSyntax += ")";
+
+	output = executeRCommand(`print(${methodSyntax})`, RBinariesLocation);
+
+	return output;
+};
 
 
 /**
@@ -333,58 +335,58 @@ callMethodAsync = (fileLocation, methodName, params, RBinariesLocation) => {
  * @returns {String[]} an array containing all the results 
  */
 filterMultiline = (commandResult) => {
-    let data;
+	let data;
 
-    // remove last newline to avoid empty results
-    // NOTE: windows newline is composed by \r\n, GNU/Linux and Mac OS newline is \n
-    var currentOS = getCurrentOs();
-    
-    commandResult = commandResult.replace(/\[\d+\] /g, "");
+	// remove last newline to avoid empty results
+	// NOTE: windows newline is composed by \r\n, GNU/Linux and Mac OS newline is \n
+	var currentOS = getCurrentOs();
 
-    if (currentOS == "win"){
-        commandResult = commandResult.replace(/\t*\s*[\r\n]*$/g, "");
-        commandResult = commandResult.replace(/[\s\t]+/g, "\r\n");
+	commandResult = commandResult.replace(/\[\d+\] /g, "");
 
-    }else{
+	if (currentOS == "win") {
+		commandResult = commandResult.replace(/\t*\s*[\r\n]*$/g, "");
+		commandResult = commandResult.replace(/[\s\t]+/g, "\r\n");
 
-        commandResult = commandResult.replace(/\t*\s*\n*$/g, "");
-        commandResult = commandResult.replace(/[\s\t]+/g, "\n");
-    }
+	} else {
 
-    // check if data is JSON parsable
-    try {
-        data = [ JSON.parse(commandResult) ];
-    } catch (e) {
-        // the result is not json parsable -> split
-        if (currentOS == "win"){
-            data = commandResult.split(/[\r\n]+/)
-        }else{
-            data = commandResult.split(/[\n]+/)
-        }
-        
-        // find undefined or NaN and remove quotes
-        for(let i=0; i<data.length; i++){
-            if (data[i] == "NA"){
-                data[i] = undefined;
-            }else if (data[i] == "NaN"){
-                data[i] = NaN;
-            }else{
-                data[i] = data[i].replace(/\"/g, "")
-            }
-            
-        }
+		commandResult = commandResult.replace(/\t*\s*\n*$/g, "");
+		commandResult = commandResult.replace(/[\s\t]+/g, "\n");
+	}
 
-    }
+	// check if data is JSON parsable
+	try {
+		data = [JSON.parse(commandResult)];
+	} catch (e) {
+		// the result is not json parsable -> split
+		if (currentOS == "win") {
+			data = commandResult.split(/[\r\n]+/)
+		} else {
+			data = commandResult.split(/[\n]+/)
+		}
+
+		// find undefined or NaN and remove quotes
+		for (let i = 0; i < data.length; i++) {
+			if (data[i] == "NA") {
+				data[i] = undefined;
+			} else if (data[i] == "NaN") {
+				data[i] = NaN;
+			} else {
+				data[i] = data[i].replace(/\"/g, "")
+			}
+
+		}
+
+	}
 
 
-    return data;
-}
+	return data;
+};
 
 module.exports = {
-    executeRCommand,
-    executeRCommandAsync,
-    executeRScript,
-    callMethod,
-    callMethodAsync,
-    callStandardMethod
+	executeRCommand,
+	executeRCommandAsync,
+	executeRScript,
+	callMethod,
+	callMethodAsync,
+	callStandardMethod
 }
