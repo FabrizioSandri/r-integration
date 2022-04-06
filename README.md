@@ -1,5 +1,7 @@
 # R-integration - Node JS  API
 
+[![Node JS CI](https://github.com/FabrizioSandri/r-integration/actions/workflows/node.js.yml/badge.svg)](https://github.com/FabrizioSandri/r-integration/actions)
+
 This is the R-integration API which allows you to execute arbitrary R commands or scripts directly from the node JS environment. This integration works on Windows and GNU/Linux based systems and uses system calls to access the R binary.
 
 ## Installation
