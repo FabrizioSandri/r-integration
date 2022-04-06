@@ -21,6 +21,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Set up R ${{ matrix.r-version }}
+      uses: r-lib/actions/setup-r@f57f1301a053485946083d7a45022b278929a78a
+      with:
+        r-version: ${{ matrix.r-version }}
+    - name: Install dependencies
+      run: |
+        install.packages(c("jsonlite"))
+      shell: Rscript {0}
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
