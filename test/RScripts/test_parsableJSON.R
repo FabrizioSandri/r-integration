@@ -1,4 +1,7 @@
-library(jsonlite)
+if (!require(jsonlite)) {
+  install.packages('jsonlite', repos='http://cran.us.r-project.org')
+  library(jsonlite)
+}
 
 json <- '[
   {"Name" : "Mario", "Age" : 32, "Occupation" : "Plumber"}, 
