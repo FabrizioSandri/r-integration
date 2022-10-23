@@ -33,7 +33,7 @@ getCurrentOs = () => {
  * @param {string} command the command to execute
  * @returns {{string, string}} the command execution result
  */
-executeShellCommand = (command) => {
+ executeShellCommand = (command) => {
 	let stdout;
 	let stderr;
 
@@ -49,6 +49,24 @@ executeShellCommand = (command) => {
 		stdout,
 		stderr
 	};
+};
+
+
+/**
+ * execute a command in the OS shell (used to execute R command) asynchronously 
+ * 
+ * @param {string} command the command to execute
+ * @returns {{string, string}} the command execution result
+ */
+ executeShellCommandAsync = (command) => {
+	return new Promise((resolve, reject) => {
+		child_process.exec(command, (error, stdout, stderr) => {
+			if (error) {
+				reject(stderr);
+			}
+			resolve(stdout);
+		});
+	});
 };
 
 /**
@@ -141,12 +159,21 @@ executeRCommand = (command, RBinariesLocation) => {
 executeRCommandAsync = (command, RBinariesLocation) => {
 	return new Promise(function(resolve, reject) {
 
-		try {
-			var result = executeRCommand(command, RBinariesLocation);
-			resolve(result);
-		} catch (e) {
-			reject(e);
-		}
+		let RscriptBinaryPath = isRscriptInstallaed(RBinariesLocation);
+		let output = 0;
+
+		if (RscriptBinaryPath) {
+			var commandToExecute = `"${RscriptBinaryPath}" -e "${command}"`;
+			executeShellCommandAsync(commandToExecute).then((output) => {
+				output = filterMultiline(output);
+				resolve(output);
+			}).catch((stderr) => {
+				reject(`[R: compile error] ${stderr}`);
+			});
+
+		} else {
+			reject("R not found, maybe not installed.\nSee www.r-project.org");
+		}	
 
 	});
 };
@@ -273,12 +300,37 @@ callMethod = (fileLocation, methodName, params, RBinariesLocation) => {
 callMethodAsync = (fileLocation, methodName, params, RBinariesLocation) => {
 	return new Promise(function(resolve, reject) {
 
-		try {
-			var result = callMethod(fileLocation, methodName, params, RBinariesLocation);
-			resolve(result);
-		} catch (e) {
-			reject(e);
+		if (!methodName || !fileLocation || !params) {
+			throw Error("ERROR: please provide valid parameters - methodName, fileLocation and params cannot be null");
 		}
+
+		var methodSyntax = `${methodName}(`;
+
+		// check if params is an array of parameters or an object
+		if (Array.isArray(params)) {
+			methodSyntax += convertParamsArray(params);
+		} else {
+			for (const [key, value] of Object.entries(params)) {
+				if (Array.isArray(value)) {
+					methodSyntax += `${key}=${convertParamsArray(value)}`;
+				} else if (typeof value == "string") {
+					methodSyntax += `${key}='${value}',`; // string preserve quotes
+				} else if (value == undefined) {
+					methodSyntax += `${key}=NA,`;
+				} else {
+					methodSyntax += `${key}=${value},`;
+				}
+			}
+		}
+
+		var methodSyntax = methodSyntax.slice(0, -1);
+		methodSyntax += ")";
+
+		executeRCommandAsync(`source('${fileLocation}') ; print(${methodSyntax})`, RBinariesLocation).then((res) => {
+			resolve(res);
+		}).catch((error) => {
+			reject(`${error}`);
+		});
 
 	})
 };
