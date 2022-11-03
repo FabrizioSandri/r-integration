@@ -31,19 +31,16 @@ getCurrentOs = () => {
  * execute a command in the OS shell (used to execute R command)
  * 
  * @param {string} command the command to execute
+ * @param {Object} args an array of parameters to be passed to the command
  * @returns {{string, string}} the command execution result
  */
- executeShellCommand = (command) => {
+ executeShellCommand = (command, args) => {
 	let stdout;
 	let stderr;
 
-	try {
-		stdout = child_process.execSync(command, {
-			stdio: "pipe"
-		}).toString();
-	} catch (error) {
-		stderr = error;
-	}
+	let exec_res = child_process.spawnSync(command, args, { encoding : 'utf8' });
+	stdout = exec_res.stdout;
+	stderr = exec_res.stderr;
 
 	return {
 		stdout,
@@ -56,16 +53,35 @@ getCurrentOs = () => {
  * execute a command in the OS shell (used to execute R command) asynchronously 
  * 
  * @param {string} command the command to execute
+ * @param {Object} args an array of parameters to be passed to the command
  * @returns {{string, string}} the command execution result
  */
- executeShellCommandAsync = (command) => {
+ executeShellCommandAsync = (command, args) => {
 	return new Promise((resolve, reject) => {
-		child_process.exec(command, (error, stdout, stderr) => {
-			if (error) {
-				reject(stderr);
-			}
-			resolve(stdout);
+		var stdout = "";
+		var stderr = "";
+
+		let process = child_process.spawn(command, args, { encoding : 'utf8' });
+
+		process.stdout.on('data', (data) => {		
+			data=data.toString();
+			stdout+=data;
 		});
+		
+		process.stderr.on('data', (data) => {		
+			data=data.toString();
+			stderr+=data;
+		});
+		
+
+		process.on('exit', (code) => {
+			if (code !== 0) {
+				reject(command + " " + args.join(" ") + " exited with code " + code + " and error: " + stderr);
+			} else {
+				resolve(stdout);
+			}
+		});
+		
 	});
 };
 
@@ -99,7 +115,7 @@ isRscriptInstallaed = (path) => {
 		case "lin":
 			if (!path) {
 				// the command "which" is used to find the Rscript installation dir
-				path = executeShellCommand("which Rscript").stdout;
+				path = executeShellCommand("which", ["Rscript"]).stdout;
 				if (path) {
 					// Rscript is installed
 					installationDir = path.replace("\n", "");
@@ -132,8 +148,8 @@ executeRCommand = (command, RBinariesLocation) => {
 	let output = 0;
 
 	if (RscriptBinaryPath) {
-		var commandToExecute = `"${RscriptBinaryPath}" -e "${command}"`;
-		var commandResult = executeShellCommand(commandToExecute);
+		var args = ["-e", command];
+		var commandResult = executeShellCommand(RscriptBinaryPath, args);
 
 		if (commandResult.stdout) {
 			output = commandResult.stdout;
@@ -150,7 +166,7 @@ executeRCommand = (command, RBinariesLocation) => {
 };
 
 /**
- * Execute in R a specific one line command - async
+ * Execute in R a specific one line command - asynchronously
  * 
  * @param {string} command the single line R command
  * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
@@ -160,11 +176,10 @@ executeRCommandAsync = (command, RBinariesLocation) => {
 	return new Promise(function(resolve, reject) {
 
 		let RscriptBinaryPath = isRscriptInstallaed(RBinariesLocation);
-		let output = 0;
 
 		if (RscriptBinaryPath) {
-			var commandToExecute = `"${RscriptBinaryPath}" -e "${command}"`;
-			executeShellCommandAsync(commandToExecute).then((output) => {
+			var args = ["-e", command];
+			executeShellCommandAsync(RscriptBinaryPath, args).then((output) => {
 				output = filterMultiline(output);
 				resolve(output);
 			}).catch((stderr) => {
@@ -200,8 +215,7 @@ executeRScript = (fileLocation, RBinariesLocation) => {
 	}
 
 	if (RscriptBinaryPath) {
-		var commandToExecute = `"${RscriptBinaryPath}" "${fileLocation}"`;
-		var commandResult = executeShellCommand(commandToExecute);
+		var commandResult = executeShellCommand(RscriptBinaryPath, [fileLocation]);
 
 		if (commandResult.stdout) {
 			output = commandResult.stdout;
