@@ -51,7 +51,7 @@ getCurrentOs = () => {
 
 /**
  * execute a command in the OS shell (used to execute R command) asynchronously 
- * 
+ *
  * @param {string} command the command to execute
  * @param {Object} args an array of parameters to be passed to the command
  * @returns {{string, string}} the command execution result
@@ -86,9 +86,9 @@ getCurrentOs = () => {
 };
 
 /**
- * checks if Rscript(R) is installed od the system and returns
- * the path where the binary is installed
- * 
+ * checks if Rscript(R) is installed od the system and returns the path where
+ * the binary is installed
+ *
  * @param {string} path alternative path to use as binaries directory
  * @returns {string} the path where the Rscript binary is installed, 0 otherwise
  */
@@ -114,7 +114,8 @@ isRscriptInstallaed = (path) => {
 		case "mac":
 		case "lin":
 			if (!path) {
-				// the command "which" is used to find the Rscript installation dir
+				// the command "which" is used to find the Rscript installation
+				// directory
 				path = executeShellCommand("which", ["Rscript"]).stdout;
 				if (path) {
 					// Rscript is installed
@@ -138,10 +139,12 @@ isRscriptInstallaed = (path) => {
 
 /**
  * Execute in R a specific one line command
- * 
+ *
  * @param {string} command the single line R command
- * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
- * @returns {String[]} an array containing all the results from the command execution output, 0 if there was an error
+ * @param {string} RBinariesLocation optional parameter to specify an
+ * alternative location for the Rscript binary
+ * @returns {String[]} an array containing all the results from the command
+ * execution output, 0 if there was an error
  */
 executeRCommand = (command, RBinariesLocation) => {
 	let RscriptBinaryPath = isRscriptInstallaed(RBinariesLocation);
@@ -167,10 +170,12 @@ executeRCommand = (command, RBinariesLocation) => {
 
 /**
  * Execute in R a specific one line command - asynchronously
- * 
+ *
  * @param {string} command the single line R command
- * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
- * @returns {String[]} an array containing all the results from the command execution output, null if there was an error
+ * @param {string} RBinariesLocation optional parameter to specify an
+ * alternative location for the Rscript binary
+ * @returns {String[]} an array containing all the results from the command
+ * execution output, null if there was an error
  */
 executeRCommandAsync = (command, RBinariesLocation) => {
 	return new Promise(function(resolve, reject) {
@@ -194,15 +199,20 @@ executeRCommandAsync = (command, RBinariesLocation) => {
 };
 
 /**
- * execute in R all the commands in the file specified by the parameter fileLocation
- * NOTE: the function reads only variables printed to stdout by the cat() or print() function.
- * It is recommended to use the print() function insted of the cat() to avoid line break problem.
- * If you use the cat() function remember to add the newline character "\n" at the end of each cat:
- * for example cat(" ... \n")
- * 
+ * execute in R all the commands in the file specified by the parameter
+ * fileLocation.
+ *
+ * NOTE: the function reads only variables printed to stdout by the cat() or
+ * print() function. It is recommended to use the print() function insted of the
+ * cat() to avoid line break problem. If you use the cat() function remember to
+ * add the newline character "\n" at the end of each cat: for example cat(" ...
+ * \n")
+ *
  * @param {string} fileLocation where the file to execute is stored
- * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
- * @returns {String[]} an array containing all the results from the command execution output, 0 if there was an error
+ * @param {string} RBinariesLocation optional parameter to specify an
+ * alternative location for the Rscript binary
+ * @returns {String[]} an array containing all the results from the command
+ * execution output, 0 if there was an error
  */
 executeRScript = (fileLocation, RBinariesLocation) => {
 
@@ -233,7 +243,7 @@ executeRScript = (fileLocation, RBinariesLocation) => {
 };
 
 /**
- * Formats the parameters so R could read them
+ * Formats the parameters so that R could read them
  */
 convertParamsArray = (params) => {
 	var methodSyntax = ``;
@@ -260,12 +270,15 @@ convertParamsArray = (params) => {
 
 
 /**
- * calls a R function located in an external script with parameters and returns the result
- * 
+ * calls a R function located in an external script with parameters and returns
+ * the result
+ *
  * @param {string} fileLocation where the file containing the function is stored
  * @param {string} methodName the name of the method to execute
- * @param {Object} params an object containing a binding between parameter names and value to pass to the function or an array 
- * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
+ * @param {Object} params an object containing a binding between parameter names
+ * and value to pass to the function or an array 
+ * @param {string} RBinariesLocation optional parameter to specify an
+ * alternative location for the Rscript binary
  * @returns {string} the execution output of the function, 0 in case of error
  */
 callMethod = (fileLocation, methodName, params, RBinariesLocation) => {
@@ -304,11 +317,12 @@ callMethod = (fileLocation, methodName, params, RBinariesLocation) => {
 
 /**
  * calls a R function with parameters and returns the result - async
- * 
+ *
  * @param {string} fileLocation where the file containing the function is stored
  * @param {string} methodName the name of the method to execute
  * @param {String []} params a list of parameters to pass to the function
- * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
+ * @param {string} RBinariesLocation optional parameter to specify an
+ * alternative location for the Rscript binary
  * @returns {string} the execution output of the function
  */
 callMethodAsync = (fileLocation, methodName, params, RBinariesLocation) => {
@@ -352,10 +366,12 @@ callMethodAsync = (fileLocation, methodName, params, RBinariesLocation) => {
 
 /**
  * calls a standard R function with parameters and returns the result
- * 
+ *
  * @param {string} methodName the name of the method to execute
- * @param {Object} params an object containing a binding between parameter names and value to pass to the function or an array 
- * @param {string} RBinariesLocation optional parameter to specify an alternative location for the Rscript binary
+ * @param {Object} params an object containing a binding between parameter names
+ * and value to pass to the function or an array 
+ * @param {string} RBinariesLocation optional parameter to specify an
+ * alternative location for the Rscript binary
  * @returns {string} the execution output of the function, 0 in case of error
  */
 callStandardMethod = (methodName, params, RBinariesLocation) => {
@@ -394,17 +410,17 @@ callStandardMethod = (methodName, params, RBinariesLocation) => {
 
 
 /**
- * filters the multiline output from the executeRcommand and executeRScript functions
- * using regular expressions
- * 
+ * filters the multiline output from the executeRcommand and executeRScript
+ * functions using regular expressions
+ *
  * @param {string} commandResult the multiline result of RScript execution
  * @returns {String[]} an array containing all the results 
  */
 filterMultiline = (commandResult) => {
 	let data;
 
-	// remove last newline to avoid empty results
-	// NOTE: windows newline is composed by \r\n, GNU/Linux and Mac OS newline is \n
+	// remove last newline to avoid empty results NOTE: windows newline is
+	// composed by \r\n, GNU/Linux and Mac OS newline is \n
 	var currentOS = getCurrentOs();
 
 	commandResult = commandResult.replace(/\[\d+\] /g, "");
