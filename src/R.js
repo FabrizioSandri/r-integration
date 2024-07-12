@@ -106,7 +106,10 @@ isRscriptInstallaed = (path) => {
 
 				let dirContent = fs.readdirSync(path);
 				if (dirContent.length != 0) {
-					let lastVersion = dirContent[dirContent.length - 1];
+					const getVersion = (dir) => dir.replace("R-", "").split(".").reduce((a, b) => a * 1e2 + b, 0);
+					const lastVersion = dirContent.reduce((a, b) => {
+						return getVersion(a) > getVersion(b) ? a : b;
+					}, dirContent[0]);
 					installationDir = pt.join(path, lastVersion, "bin", "Rscript.exe");
 				}
 			}
